@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Messages — City Portal{% endblock %}
+{% block content %}
+<div class="main-content" style="max-width:700px">
+  <div class="page-header">
+    <a href="{{ url_for('bookings') }}" class="btn btn-secondary btn-sm" style="margin-bottom:1rem" data-t="back">← Back</a>
+    <h1 data-t="msg_title">Booking Messages</h1>
+    <p>
+      <span data-t="msg_booking">Booking</span> <strong>#{{ booking.id }}</strong> —
+      <span data-t="msg_tech">Technician</span>: <strong>{{ booking.tech_name }}</strong> |
+      <span data-t="msg_status">Status</span>:
+      <span class="status-badge {{ booking.status }}" data-status="{{ booking.status }}">{{ booking.status }}</span>
+    </p>
+  </div>
+
+  <div class="card" style="min-height:350px">
+    {% if msgs %}
+      {% for m in msgs %}
+      <div class="msg-bubble {{ m.sender }}">
+        <div class="msg-sender" data-t="msg_{{ m.sender }}">{{ m.sender|capitalize }}</div>
+        <div>{{ m.content }}</div>
+        <div class="msg-time">{{ m.created_at }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align:center;padding:3rem;color:var(--text-muted)" data-t="msg_no_msg">No messages yet</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

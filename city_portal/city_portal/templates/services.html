@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Services — City Portal{% endblock %}
+{% block content %}
+<div class="main-content">
+  <div class="page-header">
+    <h1 data-t="svc_title">All Services</h1>
+    <p data-t="svc_subtitle">Browse and book skilled technicians</p>
+  </div>
+
+  <!-- Search & Filter -->
+  <form method="GET" action="{{ url_for('services') }}">
+    <div class="search-bar">
+      <input type="text" name="q" class="form-control" data-t-ph="svc_search" placeholder="Search technicians..." value="{{ q }}"/>
+      <select name="cat" class="form-control" style="max-width:200px">
+        <option value="" data-t="svc_filter_all">All Categories</option>
+        {% for c in cats %}
+        <option value="{{ c }}" {% if cat==c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+      <select name="sort" class="form-control" style="max-width:180px">
+        <option value="rating" {% if sort=='rating' %}selected{% endif %} data-t="svc_sort_rating">Sort by Rating</option>
+        <option value="name"   {% if sort=='name' %}selected{% endif %}   data-t="svc_sort_name">Sort by Name</option>
+        <option value="exp"    {% if sort=='exp' %}selected{% endif %}    data-t="svc_sort_exp">Sort by Experience</option>
+      </select>
+      <button type="submit" class="btn btn-primary" data-t="svc_search_btn">Search</button>
+    </div>
+  </form>
+
+  <!-- Category chips -->
+  <div class="filter-chips">
+    <a href="{{ url_for('services') }}" class="chip {% if not cat %}active{% endif %}" data-t="svc_filter_all">All</a>
+    {% for c in cats %}
+    <a href="{{ url_for('services', cat=c) }}" class="chip {% if cat==c %}active{% endif %}">
+      <span data-service="{{ c }}">{{ c }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Results count -->
+  <p style="margin-bottom:1rem;color:var(--text-muted);font-size:.85rem">
+    {{ techs|length }} technician{% if techs|length != 1 %}s{% endif %} found
+  </p>
+
+  {% if techs %}
+  <div class="tech-grid">
+    {% for t in techs %}
+    {% set initials = t.name.split()[0][0] + (t.name.split()[1][0] if t.name.split()|length > 1 else '') %}
+    {% set svc_class = 'svc-' + t.specialization.split()[0] %}
+    <div class="tech-card fade-in">
+      <div class="tech-card-header">
+        <div class="tech-avatar {{ svc_class }}">{{ initials }}</div>
+        <div>
+          <div class="tech-name">{{ t.name }}</div>
+          <span class="tech-spec"><span data-service="{{ t.specialization }}">{{ t.specialization }}</span></span>
+        </div>
+      </div>
+      <div class="tech-card-body">
+        <p class="tech-bio">{{ t.bio }}</p>
+        <div class="tech-meta">
+          <div class="tech-meta-item">
+            ⏱ <span class="val">{{ t.experience }}</span>&nbsp;<span data-t="svc_exp">yrs exp</span>
+          </div>
+          <div class="tech-meta-item">
+            📞 <span class="val">{{ t.phone }}</span>
+          </div>
+        </div>
+        <div class="tech-rating" style="margin-bottom:.75rem">
+          <span class="stars-display">{{ '★' * t.rating|int }}{{ '☆' * (5 - t.rating|int) }}</span>
+          <span class="rating-num">{{ t.rating }}</span>
+          <span class="review-cnt">({{ t.review_count }} <span data-t="svc_reviews">reviews</span>)</span>
+        </div>
+        <span class="badge-avail {{ 'yes' if t.available else 'no' }}" data-t="{{ 'svc_available' if t.available else 'svc_unavailable' }}">
+          {{ 'Available' if t.available else 'Unavailable' }}
+        </span>
+      </div>
+      <div class="tech-card-footer">
+        {% if t.available %}
+        <a href="{{ url_for('book', tech_id=t.id) }}" class="btn btn-primary btn-full" data-t="svc_book">Book Appointment</a>
+        {% else %}
+        <button class="btn btn-secondary btn-full" disabled data-t="svc_unavailable">Unavailable</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;padding:3rem">
+    <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+    <h3 data-t="svc_no_result">No technicians found</h3>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

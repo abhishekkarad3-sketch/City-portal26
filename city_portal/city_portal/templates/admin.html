@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — City Portal{% endblock %}
+{% block content %}
+<div class="main-content">
+  <div class="page-header">
+    <h1 data-t="adm_title">Admin Panel</h1>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid" style="margin-bottom:2rem">
+    <div class="stat-card">
+      <div class="stat-num">{{ stats.users }}</div>
+      <div class="stat-label" data-t="adm_users">Total Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">{{ stats.techs }}</div>
+      <div class="stat-label" data-t="adm_techs">Technicians</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">{{ stats.bookings }}</div>
+      <div class="stat-label" data-t="adm_bookings">Total Bookings</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">{{ stats.pending }}</div>
+      <div class="stat-label" data-t="adm_pending">Pending</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-techs',this)" data-t="adm_all_techs">All Technicians</button>
+    <button class="tab-btn" onclick="switchTab('tab-bookings',this)" data-t="adm_all_bookings">All Bookings</button>
+    <button class="tab-btn" onclick="switchTab('tab-ratings',this)" data-t="adm_all_ratings">All Ratings</button>
+    <button class="tab-btn" onclick="switchTab('tab-users',this)" data-t="adm_all_users">All Users</button>
+    <button class="tab-btn" onclick="switchTab('tab-add',this)" data-t="adm_add_tech">+ Add Technician</button>
+  </div>
+
+  <!-- Technicians -->
+  <div id="tab-techs" class="tab-pane active">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th data-t="adm_tech_name">Name</th>
+            <th data-t="adm_tech_spec">Specialization</th>
+            <th data-t="adm_tech_phone">Phone</th>
+            <th data-t="adm_tech_exp">Exp</th>
+            <th>Rating</th>
+            <th data-t="adm_action">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in techs %}
+          <tr>
+            <td>{{ t.id }}</td>
+            <td><strong>{{ t.name }}</strong></td>
+            <td><span data-service="{{ t.specialization }}">{{ t.specialization }}</span></td>
+            <td>{{ t.phone }}</td>
+            <td>{{ t.experience }} yrs</td>
+            <td>⭐ {{ t.rating }} ({{ t.review_count }})</td>
+            <td>
+              <a href="{{ url_for('delete_tech', tid=t.id) }}"
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('Delete this technician?')"
+                 data-t="adm_delete">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bookings -->
+  <div id="tab-bookings" class="tab-pane">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th data-t="adm_user">User</th>
+            <th data-t="adm_tech">Technician</th>
+            <th data-t="bk_service">Service</th>
+            <th data-t="adm_date">Date</th>
+            <th data-t="bk_status">Status</th>
+            <th data-t="adm_update_status">Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr>
+            <td>#{{ b.id }}</td>
+            <td>{{ b.user_name }}</td>
+            <td>{{ b.tech_name }}</td>
+            <td><span data-service="{{ b.specialization }}">{{ b.specialization }}</span></td>
+            <td>{{ b.service_date }}<br><small style="color:var(--text-muted)">{{ b.service_time }}</small></td>
+            <td><span class="status-badge {{ b.status }}" data-status="{{ b.status }}">{{ b.status }}</span></td>
+            <td>
+              <form method="POST" action="{{ url_for('update_booking') }}" style="display:flex;gap:.4rem;align-items:center">
+                <input type="hidden" name="booking_id" value="{{ b.id }}"/>
+                <select name="status" class="form-control" style="width:130px;padding:.35rem .6rem;font-size:.78rem">
+                  <option value="pending"   {% if b.status=='pending' %}selected{% endif %}>Pending</option>
+                  <option value="accepted"  {% if b.status=='accepted' %}selected{% endif %}>Accepted</option>
+                  <option value="completed" {% if b.status=='completed' %}selected{% endif %}>Completed</option>
+                  <option value="cancelled" {% if b.status=='cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">✓</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Ratings -->
+  <div id="tab-ratings" class="tab-pane">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th data-t="adm_user">User</th>
+            <th data-t="adm_tech">Technician</th>
+            <th data-t="adm_stars">Stars</th>
+            <th data-t="adm_feedback">Feedback</th>
+            <th data-t="adm_date">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in ratings %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.user_name }}</td>
+            <td>{{ r.tech_name }}</td>
+            <td style="color:#f59e0b">{{ '★' * r.stars }}{{ '☆' * (5-r.stars) }} ({{ r.stars }})</td>
+            <td style="max-width:250px">{{ r.feedback or '—' }}</td>
+            <td>{{ r.created_at[:10] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div id="tab-users" class="tab-pane">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th data-t="prof_name">Name</th>
+            <th data-t="prof_email">Email</th>
+            <th data-t="prof_phone">Phone</th>
+            <th data-t="prof_joined">Joined</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>{{ u.id }}</td>
+            <td><strong>{{ u.name }}</strong></td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.phone or '—' }}</td>
+            <td>{{ u.created_at[:10] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add Technician -->
+  <div id="tab-add" class="tab-pane">
+    <div class="card" style="max-width:600px">
+      <h3 style="margin-bottom:1.5rem" data-t="adm_add_tech">Add New Technician</h3>
+      <form method="POST" action="{{ url_for('add_tech') }}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label class="form-label" data-t="adm_tech_name">Name</label>
+            <input type="text" name="name" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-t="adm_tech_spec">Specialization</label>
+            <select name="spec" class="form-control" required>
+              <option value="Electrician">Electrician</option>
+              <option value="Plumber">Plumber</option>
+              <option value="Internet Technician">Internet Technician</option>
+              <option value="Computer Repair">Computer Repair</option>
+              <option value="CCTV Installation">CCTV Installation</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-t="adm_tech_phone">Phone</label>
+            <input type="tel" name="phone" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-t="adm_tech_email">Email</label>
+            <input type="email" name="email" class="form-control"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-t="adm_tech_exp">Experience (years)</label>
+            <input type="number" name="exp" class="form-control" min="0" max="40" value="1" required/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="adm_tech_bio">Bio</label>
+          <textarea name="bio" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" data-t="adm_add_btn">Add Technician</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}
