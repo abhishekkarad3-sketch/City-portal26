@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Rate & Review — City Portal{% endblock %}
+{% block content %}
+<div class="main-content" style="max-width:550px">
+  <div class="page-header">
+    <a href="{{ url_for('bookings') }}" class="btn btn-secondary btn-sm" style="margin-bottom:1rem" data-t="back">← Back</a>
+    <h1 data-t="rate_title">Rate & Review</h1>
+    <p><span data-t="rate_subtitle">Share your experience with</span> <strong>{{ booking.tech_name }}</strong></p>
+  </div>
+
+  {% if existing %}
+  <div class="card" style="text-align:center;padding:2rem">
+    <div style="font-size:3rem;margin-bottom:1rem">⭐</div>
+    <p data-t="rate_already">You have already reviewed this booking.</p>
+    <div style="font-size:1.8rem;color:#f59e0b;margin:1rem 0">{{ '★' * existing.stars }}{{ '☆' * (5 - existing.stars) }}</div>
+    <p style="color:var(--text-secondary);font-style:italic">"{{ existing.feedback }}"</p>
+    <a href="{{ url_for('bookings') }}" class="btn btn-primary" style="margin-top:1rem" data-t="back">← Back</a>
+  </div>
+
+  {% else %}
+  <div class="card">
+    <form method="POST" action="{{ url_for('rate', booking_id=booking.id) }}">
+      <div class="form-group">
+        <label class="form-label" data-t="rate_stars">Select Rating</label>
+        <div class="star-rating-input" id="starRating">
+          <span class="star" data-i="1">★</span>
+          <span class="star" data-i="2">★</span>
+          <span class="star" data-i="3">★</span>
+          <span class="star" data-i="4">★</span>
+          <span class="star" data-i="5">★</span>
+        </div>
+        <div id="starLabel" style="font-size:.85rem;color:var(--accent);margin-top:.35rem;font-weight:600;min-height:1.2em"></div>
+        <input type="hidden" name="stars" id="starsInput" value="" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-t="rate_feedback">Written Feedback</label>
+        <textarea name="feedback" class="form-control" data-t-ph="rate_feedback_ph" placeholder="Tell us about your experience..." rows="5"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" data-t="rate_btn" onclick="return validateStars()">Submit Review</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function validateStars() {
+  const v = document.getElementById('starsInput').value;
+  if (!v) { showToast('Please select a star rating!', 'error'); return false; }
+  return true;
+}
+</script>
+{% endblock %}

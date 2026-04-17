@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Profile — City Portal{% endblock %}
+{% block content %}
+<div class="main-content" style="max-width:800px">
+  <div class="page-header">
+    <h1 data-t="prof_title">My Profile</h1>
+    <p data-t="prof_subtitle">Manage your account</p>
+  </div>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-avatar">{{ u.name[0].upper() }}</div>
+    <div class="profile-info">
+      <h2>{{ u.name }}</h2>
+      <p>{{ u.email }}</p>
+      <p style="margin-top:.3rem;font-size:.8rem">
+        <span data-t="prof_joined">Member since</span>: {{ u.created_at[:10] }} &nbsp;|&nbsp;
+        <span data-t="prof_total">Total Services</span>: <strong>{{ history|length }}</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- Edit Form -->
+  {% if success %}
+  <div class="alert alert-success" data-t="prof_saved">Profile updated successfully!</div>
+  {% endif %}
+
+  <div class="card" style="margin-bottom:2rem">
+    <h3 style="margin-bottom:1.25rem;font-size:1rem" data-t="prof_subtitle">Edit Info</h3>
+    <form method="POST" action="{{ url_for('profile') }}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-group">
+          <label class="form-label" data-t="prof_name">Full Name</label>
+          <input type="text" name="name" class="form-control" value="{{ u.name }}" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="prof_phone">Phone</label>
+          <input type="tel" name="phone" class="form-control" value="{{ u.phone or '' }}"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-t="prof_email">Email</label>
+        <input type="email" class="form-control" value="{{ u.email }}" disabled style="opacity:.6"/>
+      </div>
+      <button type="submit" class="btn btn-primary" data-t="prof_save">Save Changes</button>
+    </form>
+  </div>
+
+  <!-- Service History -->
+  <h3 class="section-title" data-t="prof_history">Service History</h3>
+  {% if history %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-t="bk_id">#</th>
+          <th data-t="bk_technician">Technician</th>
+          <th data-t="bk_service">Service</th>
+          <th data-t="bk_date">Date</th>
+          <th data-t="bk_status">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in history %}
+        <tr>
+          <td>#{{ b.id }}</td>
+          <td>{{ b.tech_name }}</td>
+          <td><span data-service="{{ b.specialization }}">{{ b.specialization }}</span></td>
+          <td>{{ b.service_date }}</td>
+          <td><span class="status-badge {{ b.status }}" data-status="{{ b.status }}">{{ b.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;padding:2rem">
+    <p data-t="dash_no_bookings">No bookings yet</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

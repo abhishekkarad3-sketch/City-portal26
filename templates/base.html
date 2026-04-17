@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>{% block title %}City Portal{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────────────────────── -->
+{% if session.get('user_id') %}
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">C</div>
+    <div>
+      <span class="nav-title" data-t="nav_brand">CityPortal</span>
+      <span class="nav-subtitle" data-t="nav_tagline">Smart City Services</span>
+    </div>
+  </div>
+
+  <!-- Mobile hamburger -->
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div id="navMenu" class="nav-controls">
+    <div class="nav-links">
+      {% if session.get('user_role') == 'admin' %}
+        <a href="{{ url_for('admin_panel') }}" class="nav-link {% if request.endpoint=='admin_panel' %}active{% endif %}" data-t="nav_admin">Admin Panel</a>
+      {% else %}
+        <a href="{{ url_for('dashboard') }}"  class="nav-link {% if request.endpoint=='dashboard' %}active{% endif %}" data-t="nav_dashboard">Dashboard</a>
+        <a href="{{ url_for('services') }}"   class="nav-link {% if request.endpoint=='services' %}active{% endif %}"  data-t="nav_services">Services</a>
+        <a href="{{ url_for('bookings') }}"   class="nav-link {% if request.endpoint=='bookings' %}active{% endif %}"  data-t="nav_bookings">My Bookings</a>
+        <a href="{{ url_for('profile') }}"    class="nav-link {% if request.endpoint=='profile' %}active{% endif %}"   data-t="nav_profile">Profile</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <!-- Language -->
+    <div class="lang-selector">
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="hi">हि</button>
+      <button class="lang-btn" data-lang="mr">म</button>
+    </div>
+    <!-- Theme -->
+    <button class="theme-btn" id="themeToggleBtn" title="Toggle theme">
+      <span class="theme-icon" id="themeIcon">☀️</span>
+      <span id="themeLabel" data-t="theme_light">Light</span>
+    </button>
+    <!-- Logout -->
+    <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm" data-t="nav_logout">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+<!-- ── Page Content ─────────────────────────────────────────────────────── -->
+{% block content %}{% endblock %}
+
+<!-- ── Footer ───────────────────────────────────────────────────────────── -->
+{% if session.get('user_id') %}
+<footer>
+  <span data-t="copyright">© 2024 City Portal. All rights reserved.</span>
+</footer>
+{% endif %}
+
+<!-- ── Scripts ──────────────────────────────────────────────────────────── -->
+<script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
